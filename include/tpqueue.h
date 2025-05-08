@@ -1,67 +1,65 @@
 // Copyright 2022 NNTU-CS
 #ifndef INCLUDE_TPQUEUE_H_
 #define INCLUDE_TPQUEUE_H_
-#include <stdexcept>
 
 template<typename T>
+#include <stdexcept>
+
 class TPQueue {
  private:
   struct Node {
     T data;
     Node* next;
-    explicit Node(const T& arg) : data(arg), next(nullptr) {}
+    explicit Node(const T& d) : data(d), next(nullptr) {}
   };
 
   Node* head;
 
  public:
   TPQueue() : head(nullptr) {}
-  ~TPQueue() {
+  ~TPQueue() { clear(); }
+
+  TPQueue(const TPQueue&) = delete;
+  TPQueue& operator=(const TPQueue&) = delete;
+
+  void push(const T& val) {
+    Node* node = new Node(val);
+    if (!head || val.prior > head->data.prior) {
+      node->next = head;
+      head = node;
+    } else {
+      Node* cur = head;
+      while (cur->next && cur->next->data.prior >= val.prior) {
+        cur = cur->next;
+      }
+      node->next = cur->next;
+      cur->next = node;
+    }
+  }
+
+  T pop() {
+    if (!head) {
+      throw std::out_of_range("TPQueue::pop: empty queue");
+    }
+    Node* node = head;
+    head = head->next;
+    T val = node->data;
+    delete node;
+    return val;
+  }
+
+  bool empty() const { return head == nullptr; }
+  void clear() {
     while (head) {
       Node* tmp = head;
       head = head->next;
       delete tmp;
     }
   }
-  TPQueue(const TPQueue&) = delete;
-  TPQueue& operator=(const TPQueue&) = delete;
-
-  void push(const T& arg) {
-    Node* newNode = new Node(arg);
-    if (!head || item.prior > head->data.prior) {
-      newNode->next = head;
-      head = newNode;
-      return;
-    }
-    Node* cur = head;
-    while (cur->next && cur->next->data.prior >= item.prior) {
-      cur = cur->next;
-    }
-    newNode->next = cur->next;
-    cur->next = newNode;
-  }
-
-  T pop() {
-    if (!head) throw std::runtime_error("Unfortunatlly TPQueue is empty(pop)");
-    Node* tmp = head;
-    T returnArg = head->data;
-    head = head->next;
-    delete tmp;
-    return returnArg;
-  }
-
-  const T& top() const {
-    if (!head) throw std::runtime_error("Unfortunatlly TPQueue is empty(top)");
-    return head->data;
-  }
-
-  bool empty() const {
-    return head == nullptr;
-  }
 };
 
 struct SYM {
-  char ch;
+  char ch; // cppcheck-suppress unusedStructMember
   int prior;
 };
 #endif  // INCLUDE_TPQUEUE_H_
