@@ -59,7 +59,7 @@ class TPQueue {
 };
 
 struct SYM {
-  char ch;
+  char ch; // cppcheck-suppress unusedStructMember
   int prior;
 };
 #endif  // INCLUDE_TPQUEUE_H_
